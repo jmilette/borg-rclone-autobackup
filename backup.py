@@ -144,5 +144,4 @@ except subprocess.CalledProcessError as error:
       raise Exception("Error running command: " + str(error.stderr))
 logging.debug("Ending Rclone")
 logging.debug("Ending Backup")
-sendEmail("Backup was successful")
-
+sendEmail(f"Backup {BACKUP_NAME} was successful")

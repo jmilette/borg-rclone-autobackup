@@ -59,6 +59,7 @@ The following environment variables setup Borg
   * `BACKUP_LOCATION`: The backup location e.g. `b2:my-backup/some-host`
   * `BACKUP_PRUNE`: The backup prune string e.g. `--keep-daily=7 --keep-weekly=4`
   * `BACKUP_NOW`: Runs the backup immediately, instead of waiting for the scheduled time
+  * `BORG_CUSTOM_ARGS`: python-style list with extra args to pass to borg, e.g. `"['--exclude','path/to/exclude1','--exclude','/path/to/exclude2']"
 
 The following environment variables setup B2 as the RClone target
 
@@ -68,5 +69,20 @@ The following environment variables setup B2 as the RClone target
 The following environment variables set up Google Cloud Storage as the RClone target:
 
   * `GCS_PROJECT_NUMBER`: The project number for your Google Cloud project.
+
+The following environment variables configure email alerts:
+
+ * `EMAIL_HOST`: SMTP server URL
+ * `EMAIL_USER`: SMTP username
+ * `EMAIL_PASS`: SMTP password
+ * `EMAIL_USE_TLS`: Whether to use TLS for the SMTP connection, if not set SSL is used.
+ * `EMAIL_PORT`: SMTP port
+ * `EMAIL_FROM`: SMTP from email address (normally the same as `EMAIL_USER`)
+ * `EMAIL_TO`: Where to send email alerts
+ * `EMAIL_TEST`: Send a test email and exit without taking a backup
+ * `EMAIL_ENABLED`: Whether to email alerts after backups
+
+
+The variable `BACKUP_VERBOSE` can be set to `True` to enable extra verbosity during backups.
 
 Mount a Google Cloud service account private key, in json format, to `/google-service-account.json` and for the backup location, use format `gcs:<bucketname>/<path>`.
