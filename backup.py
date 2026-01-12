@@ -90,11 +90,11 @@ if not os.path.isdir(BORG_REPO):
     command = ['borg', 'init', '--encryption=repokey']
     logging.debug("Executing command: " + str(command))
     try:
-        output = subprocess.run(command, shell=False,capture_output=True, check=True)
+        output = subprocess.run(command, shell=False,capture_output=True, check=True, text=True)
     except subprocess.CalledProcessError as error:
         logging.fatal("There was a problem initializing the repository")
-        sendEmail("Error during repository initialization, borg said: " + str(error.stderr), subject_tag="ERROR_BORG")
-        raise Exception("Error running command: " + str(error.stderr))
+        sendEmail(f"Error during repository initialization, borg said: {error.stderr}", subject_tag="ERROR_BORG")
+        raise Exception(f"Error running command: {error.stderr}")
     logging.debug("Ending Repository Initialization")
 
 
@@ -112,15 +112,15 @@ if BORG_CUSTOM_ARGS:
 
 logging.debug("Executing command: " + str(command))
 try:
-    output = subprocess.run(command,shell=False,check=True,capture_output=True)
+    output = subprocess.run(command,shell=False,check=True,capture_output=True,text=True)
 except subprocess.CalledProcessError as error:
     #Borg exits with error code 1 on warnings, per https://borgbackup.readthedocs.io/en/stable/usage/general.html#return-codes.
     if error.returncode == 1:
-        logging.warning("Borg encountered a warning while creating the daily archive: " + str(error.stderr).encode())
+        logging.warning(f"Borg encountered a warning while creating the daily archive: {error.stderr}")
     else:
         logging.fatal("There was a problem creating the daily archive")
-        sendEmail("Error during archive creation, borg said: " + str(error.stderr), subject_tag="ERROR_BORG")
-        raise Exception("Error running command: " + str(error.stderr))
+        sendEmail(f"Error during archive creation, borg said: {error.stderr}", subject_tag="ERROR_BORG")
+        raise Exception(f"Error running command: {error.stderr}")
 
 
 if BACKUP_PRUNE:
@@ -129,11 +129,11 @@ if BACKUP_PRUNE:
     command = ['borg','prune']
     command+=BACKUP_PRUNE
     try:
-        output = subprocess.run(command,shell=False,check=True,capture_output=True)
+        output = subprocess.run(command,shell=False,check=True,capture_output=True, text=True)
     except subprocess.CalledProcessError as error:
       logging.warning("There was a problem pruning the daily archive")
-      sendEmail("Error during archive prune: " + str(error.stderr), subject_tag="ERROR_PRUNE")
-      raise Exception("Error running command: " + str(error.stderr))
+      sendEmail(f"Error during archive prune: {error.stderr}", subject_tag="ERROR_PRUNE")
+      raise Exception(f"Error running command: {error.stderr}")
     logging.debug("Ending Prune")
 
 
@@ -144,11 +144,11 @@ logging.debug("Starting Rclone")
 command = ['rclone','sync','--transfers','16',BORG_REPO,BACKUP_LOCATION]
 logging.debug("Executing command: " + str(command))
 try:
-    output = subprocess.run(command,shell=False,capture_output=True,check=True)
+    output = subprocess.run(command,shell=False,capture_output=True,check=True, text=True)
 except subprocess.CalledProcessError as error:
       logging.fatal("There was a problem syncing the backup")
-      sendEmail("Error during rclone sync, rclone said: " + str(error.stderr), subject_tag="ERROR_RCLONE")
-      raise Exception("Error running command: " + str(error.stderr))
+      sendEmail(f"Error during rclone sync, rclone said: {error.stderr}", subject_tag="ERROR_RCLONE")
+      raise Exception(f"Error running command: {error.stderr}")
 logging.debug("Ending Rclone")
 logging.debug("Ending Backup")
 sendEmail(f"Backup {BACKUP_NAME} was successful")
