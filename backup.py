@@ -114,9 +114,13 @@ logging.debug("Executing command: " + str(command))
 try:
     output = subprocess.run(command,shell=False,check=True,capture_output=True)
 except subprocess.CalledProcessError as error:
-    logging.fatal("There was a problem creating the daily archive")
-    sendEmail("Error during archive creation, borg said: " + str(error.stderr), subject_tag="ERROR_BORG")
-    raise Exception("Error running command: " + str(error.stderr))
+    #Borg exits with error code 1 on warnings, per https://borgbackup.readthedocs.io/en/stable/usage/general.html#return-codes.
+    if error.returncode == 1:
+        logging.warning("Borg encountered a warning while creating the daily archive: " + str(error.stderr).encode())
+    else:
+        logging.fatal("There was a problem creating the daily archive")
+        sendEmail("Error during archive creation, borg said: " + str(error.stderr), subject_tag="ERROR_BORG")
+        raise Exception("Error running command: " + str(error.stderr))
 
 
 if BACKUP_PRUNE:
@@ -147,5 +151,5 @@ except subprocess.CalledProcessError as error:
       raise Exception("Error running command: " + str(error.stderr))
 logging.debug("Ending Rclone")
 logging.debug("Ending Backup")
-sendEmail("Backup was successful")
+sendEmail(f"Backup {BACKUP_NAME} was successful")
 
